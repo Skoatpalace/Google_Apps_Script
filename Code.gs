@@ -6,14 +6,11 @@ function onOpen(e) {
 }
 
 function openDialog(temp, title){
-  Logger.log(temp);
-  //var html = HtmlService.createHtmlOutputFromFile(temp);
   var template = HtmlService.createTemplateFromFile(temp);
-  template.calid="100";
+  template.calid= CalendarApp.getDefaultCalendar().getId();
   var html = template.evaluate().setTitle(title);
   SpreadsheetApp.getUi()
-  .showModalDialog(html, title) // Or DocumentApp or SlidesApp or FormApp.
-      //.showSidebar(html);
+  .showModalDialog(html, title);
  
 }
 
