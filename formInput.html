@@ -1,12 +1,81 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <base target="_top">
-  </head>
-  <body>
-    <h1>New Form Input</h1>
-    <?= calid ?>
-  </body>
-</html>
 
+<head>
+    <base target="_top">
+    <style>
+        input {
+            width: 100%;
+            font-size: 1.2em;
+            color: black;
+            margin-top: 3px;
+            margin-bottom: 10px;
+        }
+        
+        body {
+            color: white;
+            font-size: 0.8em;
+            background-color: #666;
+            font-family: sans-serif;
+        }
+        
+        button {
+            font-size: 1.2em;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="message"></div> <span>Search Terms:</span>
+        <input type="text" name="wordy" value="new,test">
+        <br> <span>Start Date:</span>
+        <input type="date" name="start">
+        <br> <span>End Date:</span>
+        <input type="date" name="end">
+        <br> <span>Calendar ID:</span>
+        <input type="text" name="calid" value="richard.fages@gmail.com">
+        <br>
+        <button class="subs">Submit</button>
+    </div>
+    <script>
+        var CALENDAR_ID = "<?= calid ?>";
+        var now = new Date();
+        var nextEnd = new Date(now.getTime() + (56 * 24 * 60 * 60 * 1000));
+        var allInputs = document.querySelectorAll("input");
+        var s = document.querySelector("input[name=start]");
+        var e = document.querySelector("input[name=end]");
+        document.querySelector(".subs").addEventListener("click", formSubmit);
+        s.valueAsDate = now;
+        e.valueAsDate = nextEnd;
+
+        function formSubmit(e) {
+            e.preventDefault();
+            var holder = {};
+            allInputs.forEach(function (el) {
+                holder[el.getAttribute("name")] = el.value;
+            })
+            if (holder.calid != "") {
+                google.script.run.withSuccessHandler(success).eventChecker(holder);
+                //https://developers.google.com/apps-script/guides/html/reference/run
+                console.log(holder);
+            }
+            else {
+                alert("missing id");
+            }
+        }
+
+        function success(data) {
+            console.log(data);
+            //google.script.host.close();
+        }
+    </script>
+</body>
+
+</html>
 

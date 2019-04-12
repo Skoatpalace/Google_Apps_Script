@@ -1,12 +1,85 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <base target="_top">
-  </head>
-  <body>
-    New event temp
-    <?= calid ?>
-  </body>
-</html>
-
-
+    <!DOCTYPE html>
+    <html>
+     
+    <head>
+        <base target="_top">
+        <style>
+            input {
+                width: 100%;
+                font-size: 1.2em;
+                color: black;
+                margin-top: 3px;
+                margin-bottom: 10px;
+            }
+            
+            body {
+            color: white;
+            font-size: 0.8em;
+            background-color: #666;
+            font-family: sans-serif;
+            }
+            
+            button {
+                padding: 10px;
+                font-size: 1.5em;
+                border-radius: 25px;
+            }
+            
+            .container {
+                max-width: 800px;
+                margin: auto;
+                padding-top: 50px;
+            }
+        </style>
+    </head>
+     
+    <body>
+        <div class="container">
+            <div class="message"></div> <span>Title:</span>
+            <input type="text" name="title" value="new">
+            <br> <span>Description:</span>
+            <input type="text" name="description" value="default">
+            <br> <span>Start Date:</span>
+            <input type="datetime-local" name="start">
+            <br> <span>End Date:</span>
+            <input type="datetime-local" name="end">
+            <br> <span>Calendar ID:</span>
+            <input type="text" name="calid" value="richard.fages@gmail.com">
+            <br>
+            <button class="subs">Submit</button>
+        </div>
+        <script>
+            var CALENDAR_ID = "<?= calid ?>";
+            var now = new Date();
+            var curDate = now.getTime() - now.getTimezoneOffset() * 60000;
+            var viewDateStart = new Date(curDate).toISOString().substring(0, 11) + "08:00:00";
+            var viewDateEnd = new Date(curDate).toISOString().substring(0, 11) + "09:00:00";
+            var allInputs = document.querySelectorAll("input");
+            var s = document.querySelector("input[name=start]");
+            var e = document.querySelector("input[name=end]");
+            document.querySelector(".subs").addEventListener("click", formSubmit);
+            s.value = viewDateStart;
+            e.value = viewDateEnd;
+     
+            function formSubmit(e) {
+                e.preventDefault();
+                var holder = {};
+                allInputs.forEach(function (el) {
+                    holder[el.getAttribute("name")] = el.value;
+                })
+                if (holder.calid != "") {
+                google.script.run.withSuccessHandler(success).eventMaker(holder);
+                    console.log(holder);
+                }
+                else {
+                    alert("missing id");
+                }
+            }
+     
+            function success(data) {
+                google.script.host.close();
+            }
+        </script>
+    </body>
+     
+    </html>
