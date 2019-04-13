@@ -8,9 +8,9 @@ function eventMaker(data) {
     description: data.description
     , location: "TBA"
   });
-  SpreadsheetApp.getActiveSpreadsheet().toast("Event Added " + event.getId(), "Create Event");
+  SpreadsheetApp.getActiveSpreadsheet().toast("Event Added " + event.getOriginalCalendarId(), "Create Event");
   return {
-    "eventId": event.getId()
+    "eventId": event.getOriginalCalendarId()
   };
 }
 
@@ -21,6 +21,7 @@ function eventChecker(data) {
 }
 
 function getEvents(data) {
+  var temp = data.wordy.split(",");
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var newSheetName = new Date().toJSON().slice(0, 10);
   var checkExist = ss.getSheetByName(newSheetName);
@@ -29,9 +30,41 @@ function getEvents(data) {
   }
   var sheet = ss.insertSheet(newSheetName);
   sheet.appendRow(["ID", "Title", "Update", "Location", "Start", "End", "Description", "Guest"]);
+  var cal = CalendarApp.getCalendarById(data.calid);
+  var events = cal.getEvents(new Date(data.start), new Date(data.end));
+  var myEvents = [];
+  for (var x = 0; x < events.length; x++) {
+    var tempArray = [];
+    var tempTitle = events[x].getTitle().toLowerCase();
+    var found = false;
+    temp.forEach(function (item) {
+      if (tempTitle.indexOf(item.trim().toLowerCase()) !== -1) {
+        found = true;
+      }
+    })
+    if (found) {
+      tempArray.push(events[x].getOriginalCalendarId());
+      tempArray.push(events[x].getTitle());
+      tempArray.push(events[x].getLastUpdated());
+      tempArray.push(events[x].getLocation());
+      tempArray.push(events[x].getStartTime());
+      tempArray.push(events[x].getEndTime());
+      tempArray.push(events[x].getDescription());
+      tempArray.push(events[x].getGuestList());
+      myEvents.push(tempArray);
+    }
+  }
+  sheet.getRange(2, 1, myEvents.length, myEvents[0].length).setValues(myEvents);
   return {
     "sheetname": newSheetName
   }
+}
+
+function doGet(e) {
+  var template = HtmlService.createTemplateFromFile("newEvent");
+  template.calid = CalendarApp.getDefaultCalendar().getId();
+  var html = template.evaluate().setSandboxMode(HtmlService.SandboxMode.IFRAME);
+  return html;
 }
 
 function openDialog(temp, title) {
@@ -42,9 +75,9 @@ function openDialog(temp, title) {
 }
 
 function addEvent() {
-  openDialog("newEvent", "event 1");
+  openDialog("newEvent", "Add New Event");
 }
 
 function createSheet() {
-  openDialog("formInput", "event 2");
+  openDialog("formInput", "Search Calendar");
 }
